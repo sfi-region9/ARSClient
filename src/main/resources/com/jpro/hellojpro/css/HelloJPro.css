@@ -1,15 +1,41 @@
 .root {
-    -fx-background-color: white;
+    -fx-background-color: #293133;
+}
+
+.basepane {
+    -fx-background-color: #293133;
 }
 
 .label {
     -fx-font-size: 16px;
 }
 
+.text-area .content {
+    -fx-background-color: #AD722C;
+}
+
 .hello-label {
     -fx-translate-y: -80px;
     -fx-text-fill: #999;
     -fx-font-size: 32px;
+}
+
+.button {
+    -fx-background-color: #293133;
+    -fx-text-fill: white
+}
+
+.button:disabled {
+}
+
+.text-area:disabled{
+    -fx-opacity: 80%;
+}
+
+.text-field  {
+    -fx-text-fill: #5B1414;
+    -fx-fill: #AD722C;
+    -fx-background-color: #AD722C
 }
 
 .platform-label {

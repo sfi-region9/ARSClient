@@ -17,7 +17,7 @@ public class HelloJPro extends Application {
     @Override
     public void start(Stage stage)
     {
-        Label label = new Label("Hello JPro!");
+        Label label = new Label("Hello JPro D");
         label.setFont(new Font(50));
         label.setAlignment(Pos.CENTER);
         stage.setScene(new Scene(label));
