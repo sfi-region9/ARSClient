@@ -2,9 +2,6 @@ package com.jpro.hellojpro.storage;
 
 import com.jpro.webapi.WebAPI;
 
-import java.util.prefs.BackingStoreException;
-import java.util.prefs.Preferences;
-
 public class UserLocalStoreWeb {
 
     public static final String PREF_NAME = "arsuserstore";

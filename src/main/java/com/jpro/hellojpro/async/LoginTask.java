@@ -1,12 +1,11 @@
 package com.jpro.hellojpro.async;
 
 import com.jpro.hellojpro.HelloJProFXMLController;
-import com.jpro.hellojpro.auth.AuthSDK;
 import com.jpro.hellojpro.storage.SuperUser;
 import com.jpro.hellojpro.storage.UserLocalStoreWeb;
-import com.jpro.hellojpro.storage.WebPreferences;
 import com.jpro.webapi.WebAPI;
 import com.victorlaerte.asynctask.AsyncTask;
+import fr.colin.arssdk.ARSdk;
 import javafx.scene.control.Alert;
 
 import java.io.IOException;
@@ -29,9 +28,8 @@ public class LoginTask extends AsyncTask<String, String, String[]> {
         if (strings.length < 2) {
             return new String[]{"false", "Require two arguments"};
         }
-        AuthSDK a = new AuthSDK();
         try {
-            return a.loginUser(strings[0], strings[1]);
+            return ARSdk.DEFAULT_INSTANCE.loginUser(strings[0], strings[1]);
         } catch (IOException e) {
             return new String[]{"false", "Error, please retry"};
         }

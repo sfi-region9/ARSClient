@@ -1,15 +1,11 @@
 package com.jpro.hellojpro.async;
 
 import com.jpro.hellojpro.HelloJProFXMLController;
-import com.jpro.hellojpro.auth.AuthSDK;
-import com.jpro.hellojpro.storage.SuperUser;
-import com.jpro.hellojpro.storage.UserLocalStoreWeb;
-import com.jpro.webapi.WebAPI;
 import com.victorlaerte.asynctask.AsyncTask;
+import fr.colin.arssdk.ARSdk;
 import javafx.scene.control.Alert;
 
 import java.io.IOException;
-import java.util.regex.Pattern;
 
 public class RegisterTask extends AsyncTask<String, String, String[]> {
 
@@ -29,8 +25,7 @@ public class RegisterTask extends AsyncTask<String, String, String[]> {
             return new String[]{"false", "Require six arguments"};
         }
         try {
-            AuthSDK auth = new AuthSDK();
-            String[] c = auth.registerUser(strings[0], strings[1], strings[2], strings[3], strings[4], strings[5]);
+            String[] c = ARSdk.DEFAULT_INSTANCE.registerUser(strings[0], strings[1], strings[2], strings[3], strings[4], strings[5]);
             return c;
         } catch (IOException e) {
             return new String[]{"false", "Error, please retry"};

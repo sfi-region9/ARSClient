@@ -6,7 +6,6 @@ import com.jpro.webapi.WebAPI;
 import com.squareup.okhttp.Request;
 import fr.colin.arssdk.ARSdk;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
@@ -20,21 +19,15 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import java.io.*;
-import java.net.URL;
-import java.net.URLConnection;
+import java.io.IOException;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.logging.Logger;
 
 public class HelloJProFXML extends JProApplication {
     public static void main(String[] args) {
         launch(args);
     }
 
-    public static final String VERSION = "v1.6";
+    public static final String VERSION = "v1.7";
 
 
     @Override

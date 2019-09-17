@@ -1,7 +1,5 @@
 package com.jpro.hellojpro.storage;
 
-import com.google.gson.internal.$Gson$Types;
-
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
