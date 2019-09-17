@@ -2,9 +2,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sandec.jpro</groupId>
-    <artifactId>hellojpro-maven</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <groupId>fr.colin.arsclient</groupId>
+    <artifactId>ARSClient</artifactId>
+    <version>v1.7</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -19,23 +19,58 @@
 
     <build>
 
-    <plugins>
+        <plugins>
 
-      <plugin>
-          <groupId>com.sandec.jpro</groupId>
-          <artifactId>jpro-maven-plugin</artifactId>
-          <version>${jproVersion}</version>
-          <configuration>
-              <visible>false</visible>
-              <JVMArgs>
-                  <!-- <JVMArg>your-args</JVMArg> -->
-              </JVMArgs>
-              <mainClassName>com.jpro.hellojpro.HelloJProFXML</mainClassName>
-              <openingPath>/</openingPath>
-          </configuration>
-      </plugin>
-
-    </plugins>
+            <plugin>
+                <groupId>com.sandec.jpro</groupId>
+                <artifactId>jpro-maven-plugin</artifactId>
+                <version>${jproVersion}</version>
+                <configuration>
+                    <visible>false</visible>
+                    <JVMArgs>
+                        <!-- <JVMArg>your-args</JVMArg> -->
+                    </JVMArgs>
+                    <mainClassName>com.jpro.hellojpro.HelloJProFXML</mainClassName>
+                    <openingPath>/</openingPath>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.jpro.hellojpro.HelloJProFXML</mainClass>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.jpro.hellojpro.HelloJProFXML</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
     </build>
 
     <pluginRepositories>
@@ -50,8 +85,11 @@
             <id>jpro - sandec repository</id>
             <url>http://sandec.bintray.com/repo</url>
         </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
-
 
 
     <dependencies>
@@ -61,8 +99,25 @@
             <version>${jproVersion}</version>
             <scope>compile</scope>
         </dependency>
-    </dependencies>
+        <dependency>
+            <groupId>com.victorlaerte</groupId>
+            <artifactId>jfx-asynctask</artifactId>
+            <version>1.0.1</version>
+        </dependency>
 
+        <dependency>
+            <groupId>com.github.coco33920</groupId>
+            <artifactId>automaticreportsystem-sdk</artifactId>
+            <version>dev-SNAPSHOT</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+
+    </dependencies>
 
 
 </project>

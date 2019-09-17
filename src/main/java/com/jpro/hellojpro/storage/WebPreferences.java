@@ -1,13 +1,10 @@
 package com.jpro.hellojpro.storage;
 
-import com.jpro.hellojpro.async.TestO;
 import com.jpro.webapi.WebAPI;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class WebPreferences {
 

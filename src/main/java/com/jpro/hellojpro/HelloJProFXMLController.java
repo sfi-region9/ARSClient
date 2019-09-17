@@ -1,21 +1,17 @@
 package com.jpro.hellojpro;
 
-import com.google.gson.Gson;
 import com.jpro.hellojpro.async.LoginTask;
 import com.jpro.hellojpro.async.RegisterTask;
 import com.jpro.hellojpro.async.ToggleDestroyTask;
-import com.jpro.hellojpro.sdk.CheckVessel;
-import com.jpro.hellojpro.sdk.CheckVesselName;
 import com.jpro.hellojpro.storage.SuperUser;
 import com.jpro.hellojpro.storage.UserLocalStoreDesktop;
 import com.jpro.hellojpro.storage.UserLocalStoreWeb;
 import com.jpro.webapi.JProApplication;
 import com.jpro.webapi.WebAPI;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import fr.colin.arssdk.ARSdk;
 import fr.colin.arssdk.UserNotFoundException;
+import fr.colin.arssdk.objects.CheckVessel;
+import fr.colin.arssdk.objects.CheckVesselName;
 import fr.colin.arssdk.objects.User;
 import fr.colin.arssdk.objects.Vessel;
 import javafx.animation.ParallelTransition;
@@ -149,6 +145,7 @@ public class HelloJProFXMLController implements Initializable {
         PasswordField password = new PasswordField();
         password.setText("password");
         TextField code = new TextField("code");
+        code.setDisable(true);
         Button submit = new Button("submit");
         Button back = new Button("back");
 
@@ -203,7 +200,7 @@ public class HelloJProFXMLController implements Initializable {
 
         submit.setOnMouseClicked(event -> {
             toggle(true, name, username, scc, email, password, code, submit);
-            if (!code.getText().equals("9b664WYNrL6WC4hq2u9CF3c6jVf6kHcK2Wn9X3tn")) {
+            if (!code.getText().equals("code")) {
                 sendPopUp("Register", "Register Process Error", "The verification code is wrong, please retry", Alert.AlertType.WARNING);
                 toggle(false, name, username, scc, email, password, code, submit);
                 return;
@@ -590,12 +587,8 @@ public class HelloJProFXMLController implements Initializable {
 
 
             User user = getLogged().getSdkUser();
-            Request r = new Request.Builder().url("https://ars.nwa2coco.fr/destroy_user").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(user))).build();
-            Request rs = new Request.Builder().url("https://auth.nwa2coco.fr/destroy_user").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(user))).build();
             try {
-                ARSdk.HTTP_CLIENT.newCall(r).execute().body().string();
-                String s = ARSdk.HTTP_CLIENT.newCall(rs).execute().body().string();
-                System.out.println(s);
+                ARSdk.DEFAULT_INSTANCE.destroyUser(user);
                 sendPopUp("Account Destroy", "Destroy Process", "Your account is successfully destroyed", Alert.AlertType.INFORMATION);
                 if (WebAPI.isBrowser()) {
                     webPreferences.clearUser();
@@ -717,7 +710,7 @@ public class HelloJProFXMLController implements Initializable {
         send.setOnMouseClicked(event -> {
             CheckVessel vesselName = new CheckVessel(getLogged().getVesselid(), getLogged().getMessengerid(), templateArea.getText().replace("\n", "\\n"));
             try {
-                ARSdk.HTTP_CLIENT.newCall(new Request.Builder().url("https://ars.nwa2coco.fr/update_template").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(vesselName))).build()).execute();
+                ARSdk.DEFAULT_INSTANCE.updateVesselTemplate(vesselName);
                 sendPopUp("Default Template", "Default Template Altered", "You changed the default template of your vessel", Alert.AlertType.INFORMATION);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -766,7 +759,7 @@ public class HelloJProFXMLController implements Initializable {
         send.setOnMouseClicked(event -> {
             CheckVesselName vesselName = new CheckVesselName(getLogged().getVesselid(), getLogged().getMessengerid(), templateArea.getText().replace("\n", "\\n"));
             try {
-                ARSdk.HTTP_CLIENT.newCall(new Request.Builder().url("https://ars.nwa2coco.fr/update_name").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(vesselName))).build()).execute();
+                ARSdk.DEFAULT_INSTANCE.updateVesselDefault(vesselName);
                 sendPopUp("Default Report", "Default Report Altered", "You changed the default report of your vessel", Alert.AlertType.INFORMATION);
             } catch (IOException e) {
                 e.printStackTrace();

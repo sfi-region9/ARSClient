@@ -1,7 +1,6 @@
 package com.jpro.hellojpro.async;
 
 import com.victorlaerte.asynctask.AsyncTask;
-import javafx.concurrent.Task;
 import javafx.scene.control.Button;
 import javafx.scene.media.MediaPlayer;
 

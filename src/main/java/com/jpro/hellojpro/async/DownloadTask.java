@@ -1,19 +1,15 @@
 package com.jpro.hellojpro.async;
 
 import com.victorlaerte.asynctask.AsyncTask;
-import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 public class DownloadTask extends AsyncTask<Object, Double, String> {
     ProgressBar bar;
