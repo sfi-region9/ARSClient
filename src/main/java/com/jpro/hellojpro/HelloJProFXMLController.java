@@ -3,7 +3,7 @@ package com.jpro.hellojpro;
 import com.google.gson.Gson;
 import com.jpro.hellojpro.async.LoginTask;
 import com.jpro.hellojpro.async.RegisterTask;
-import com.jpro.hellojpro.auth.Register;
+import com.jpro.hellojpro.async.ToggleDestroyTask;
 import com.jpro.hellojpro.sdk.CheckVessel;
 import com.jpro.hellojpro.sdk.CheckVesselName;
 import com.jpro.hellojpro.storage.SuperUser;
@@ -14,25 +14,36 @@ import com.jpro.webapi.WebAPI;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import fr.colin.arssdk.ARSdk;
 import fr.colin.arssdk.UserNotFoundException;
 import fr.colin.arssdk.objects.User;
 import fr.colin.arssdk.objects.Vessel;
 import javafx.animation.ParallelTransition;
-import javafx.collections.FXCollections;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.ResourceBundle;
 
 /**
  * Created by TB on 25.02.16.
@@ -41,6 +52,9 @@ public class HelloJProFXMLController implements Initializable {
 
     @FXML
     private GridPane basepane;
+
+    private Media media;
+    private MediaPlayer player;
 
     public static HashMap<String, Boolean> webEditMode = new HashMap<>();
 
@@ -56,6 +70,20 @@ public class HelloJProFXMLController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+
+        try {
+            //URI uri = getClass().getResource("/sounds/soundbig.mp3").toURI();
+            URI uri;
+            URL u = new URL("https://documentation.nwa2coco.fr/res/sounds.wav");
+            uri = u.toURI();
+            media = new Media(uri.toString());
+            player = new MediaPlayer(media);
+            player.setStartTime(Duration.ZERO);
+            //     player.setStopTime(new Duration(1044));
+            //    player.setCycleCount(MediaPlayer.INDEFINITE);
+        } catch (URISyntaxException | MalformedURLException e) {
+            e.printStackTrace();
+        }
 
         if (!WebAPI.isBrowser())
             userLocalStoreDesktop = new UserLocalStoreDesktop();
@@ -80,7 +108,7 @@ public class HelloJProFXMLController implements Initializable {
         basepane.setPadding(new Insets(20, 20, 20, 20));
 
         TextField field = new TextField("username");
-        TextField password = new TextField();
+        PasswordField password = new PasswordField();
         password.setText("password");
         Button b = new Button("Log In");
         Button back = new Button("back");
@@ -88,6 +116,8 @@ public class HelloJProFXMLController implements Initializable {
 
         field.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
         password.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
+
+        password.setSkin(new TextFieldCaretControlSkin(password, Color.TRANSPARENT));
 
         b.setPrefWidth(120);
         b.setBorder(new Border(new BorderStroke(Color.web("5B1414"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
@@ -99,9 +129,7 @@ public class HelloJProFXMLController implements Initializable {
         basepane.add(password, 1, 1);
         basepane.add(back, 0, 3);
         b.setOnMouseClicked(event -> {
-            field.setDisable(true);
-            password.setDisable(true);
-            b.setDisable(true);
+            toggle(true, b, field, password);
             LoginTask t = new LoginTask(this);
             t.execute(field.getText(), password.getText());
         });
@@ -118,7 +146,8 @@ public class HelloJProFXMLController implements Initializable {
         TextField username = new TextField("username");
         TextField scc = new TextField("SCC#");
         TextField email = new TextField("email");
-        TextField password = new TextField("password");
+        PasswordField password = new PasswordField();
+        password.setText("password");
         TextField code = new TextField("code");
         Button submit = new Button("submit");
         Button back = new Button("back");
@@ -129,6 +158,8 @@ public class HelloJProFXMLController implements Initializable {
         email.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
         password.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
         code.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
+
+        password.setSkin(new TextFieldCaretControlSkin(password, Color.TRANSPARENT));
 
 
         Border b = new Border(new BorderStroke(Color.web("5B1414"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2)));
@@ -169,24 +200,52 @@ public class HelloJProFXMLController implements Initializable {
             initializeBaseLook();
         });
 
+
         submit.setOnMouseClicked(event -> {
+            toggle(true, name, username, scc, email, password, code, submit);
             if (!code.getText().equals("9b664WYNrL6WC4hq2u9CF3c6jVf6kHcK2Wn9X3tn")) {
+                sendPopUp("Register", "Register Process Error", "The verification code is wrong, please retry", Alert.AlertType.WARNING);
+                toggle(false, name, username, scc, email, password, code, submit);
                 return;
             }
-            name.setDisable(true);
-            username.setDisable(true);
-            scc.setDisable(true);
-            email.setDisable(true);
-            password.setDisable(true);
-            code.setDisable(true);
-            submit.setDisable(true);
+            if (name.getText().isEmpty() || name.getText().length() < 3) {
+                sendPopUp("Register", "Register Process Error", "The name length is lower than 3 character", Alert.AlertType.WARNING);
+                toggle(false, name, username, scc, email, password, code, submit);
+
+                return;
+            }
+            if (username.getText().isEmpty()) {
+                sendPopUp("Register", "Register Process Error", "The username field is empty", Alert.AlertType.WARNING);
+                toggle(false, name, username, scc, email, password, code, submit);
+
+                return;
+            }
+            if (scc.getText().isEmpty() || scc.getText().length() < 5) {
+                sendPopUp("Register", "Register Process Error", "The SCC length is lower than 5 character", Alert.AlertType.WARNING);
+                toggle(false, name, username, scc, email, password, code, submit);
+
+                return;
+            }
+            if (email.getText().isEmpty()) {
+                sendPopUp("Register", "Register Process Error", "The email field is empty", Alert.AlertType.WARNING);
+                toggle(false, name, username, scc, email, password, code, submit);
+
+                return;
+            }
+
             RegisterTask r = new RegisterTask(this);
             r.execute(name.getText(), username.getText(), password.getText(), nameToId(vessel.getValue().toString()), email.getText(), scc.getText());
-            initializeBaseLook();
         });
 
 
     }
+
+    public void toggle(boolean b, Node... nodes) {
+        for (Node node : nodes) {
+            node.setDisable(b);
+        }
+    }
+
 
     public String nameToId(String vesselname) {
         return vesselname.toLowerCase().replace(" ", "");
@@ -202,7 +261,7 @@ public class HelloJProFXMLController implements Initializable {
 
     public boolean getBoolean() {
         if (WebAPI.isBrowser()) {
-            return webPreferences.isEditMode();
+            return webEditMode.get("instance" + jProApplication.getWebAPI().getInstanceID());
         } else {
             return userLocalStoreDesktop.getPreferences().getBoolean("editmode", false);
         }
@@ -213,13 +272,12 @@ public class HelloJProFXMLController implements Initializable {
         System.out.println(actual);
         if (WebAPI.isBrowser()) {
             if (actual) {
-                System.out.println("remove editmode");
-                webPreferences.getPreferences().remove("editmode");
+                webEditMode.remove("instance" + jProApplication.getWebAPI().getInstanceID());
+                webEditMode.put("instance" + jProApplication.getWebAPI().getInstanceID(), false);
             } else {
-                System.out.println("add editmode");
-                webPreferences.getPreferences().putBoolean("editmode", true);
+                webEditMode.remove("instance" + jProApplication.getWebAPI().getInstanceID());
+                webEditMode.put("instance" + jProApplication.getWebAPI().getInstanceID(), true);
             }
-            jProApplication.getWebAPI().executeScript("document.location.reload();");
         } else {
             userLocalStoreDesktop.getPreferences().remove("editmode");
             userLocalStoreDesktop.getPreferences().putBoolean("editmode", !actual);
@@ -252,6 +310,8 @@ public class HelloJProFXMLController implements Initializable {
             userLocalStoreDesktop.getPreferences().putBoolean("editmode", false);
         } else {
             logged = webPreferences.isLoggedIn();
+            webEditMode.remove("instance" + jProApplication.getWebAPI().getInstanceID());
+            webEditMode.put("instance" + jProApplication.getWebAPI().getInstanceID(), false);
         }
 
 
@@ -268,26 +328,13 @@ public class HelloJProFXMLController implements Initializable {
 
 
         if (!logged) {
-            profile.setDisable(true);
-            edmod.setDisable(true);
-            send.setDisable(true);
-            erase.setDisable(true);
-            cT.setDisable(true);
-            cD.setDisable(true);
-            login.setDisable(false);
-            register.setDisable(false);
-
+            toggle(true, profile, edmod, send, erase, cT, cD);
         }
 
         if (logged) {
             login.setText("Log Out");
-            register.setDisable(true);
-            cT.setDisable(true);
-            cD.setDisable(true);
-            profile.setDisable(false);
-            edmod.setDisable(false);
-            send.setDisable(false);
-            erase.setDisable(false);
+            toggle(true, register, cT, cD);
+            toggle(false, profile, edmod, send, erase);
             try {
                 User u = ARSdk.DEFAULT_INSTANCE.syncronizeUser(getLogged().getSdkUser());
                 if (WebAPI.isBrowser()) {
@@ -332,7 +379,10 @@ public class HelloJProFXMLController implements Initializable {
             } else {
                 if (webPreferences.isLoggedIn()) {
                     webPreferences.clearUser();
-                    initializeBaseLook();
+                    //jProApplication.getWebAPI().executeScript("console.error('name');");
+                    //jProApplication.getWebAPI().executeScript("createCookie('namesd','sdf',31);");
+                    // webPreferences.setUserLoggedIn(false);
+                    //    initializeBaseLook();
                     jProApplication.getWebAPI().executeScript("document.location.reload();");
                     sendPopUp("Log Out", "Log Out", "You Log Out", Alert.AlertType.INFORMATION);
                     return;
@@ -395,6 +445,7 @@ public class HelloJProFXMLController implements Initializable {
         });
 
         about.setOnMouseClicked(event -> {
+            sendPopUp("About", "ARS", "The Automatic Report System is brought you by the team of the Science Section of the USS Versailles R9\nDevelopped with love by LT. Colin THOMAS\nHosted by USS Versailles\nPrivacy policy : https://reports.nwa2coco.fr/enpp.html (EN), https://reports.nwa2coco.fr/frpp.html (FR)", Alert.AlertType.INFORMATION);
         });
 
         //WEB :: LocalStorage
@@ -476,16 +527,89 @@ public class HelloJProFXMLController implements Initializable {
         report.setDisable(true);
         Button submit = new Button("submit");
         Button back = new Button("back");
+        Button lock = new Button("Unlock/Lock");
+        Button destroy = new Button("Destroy Account");
+
+        Label uuid = new Label("Your UUID : " + su.getUuid());
+        Label linked = new Label("Linked : " + !(su.getMessengerid().equalsIgnoreCase("undefined")));
+        uuid.setWrapText(true);
 
         name.setDisable(true);
         username.setDisable(true);
         scc.setDisable(true);
 
+
+        uuid.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+                if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
+                    if (mouseEvent.getClickCount() == 2) {
+                        uuid.setVisible(false);
+                        TextField textarea = new TextField(uuid.getText());
+                        textarea.setPrefHeight(uuid.getHeight() + 10);
+                        textarea.setStyle("-fx-text-fill: #5B1414; -fx-background-color: transparent;");
+                        basepane.add(textarea, 1, 3);
+
+                        textarea.setOnKeyPressed(event -> {
+                            System.out.println(event.getCode());
+                            if (event.getCode().toString().equals("ENTER")) {
+                                basepane.getChildren().remove(textarea);
+                                uuid.setVisible(true);
+                            }
+                        });
+                    }
+                }
+            }
+        });
+
+
         report.setText(getLogged().getReport());
         name.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
         username.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
         scc.setStyle("-fx-text-fill: #5B1414; -fx-fill: #AD722C; -fx-background-color: #AD722C");
+        uuid.setStyle("-fx-text-fill: #5B1414");
+        linked.setStyle("-fx-text-fill: #5B1414");
 
+        destroy.setStyle("-fx-text-fill: #AD722C; -fx-background-color: #5B1414");
+
+        destroy.setBorder(new Border(new BorderStroke(Color.web("#AD722C"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2))));
+
+
+        destroy.setOnMouseEntered(event -> {
+            if (!destroy.isDisabled()) {
+                player.play();
+            }
+            //PLAY DANGEROUS MUSIC
+        });
+
+        destroy.setOnMouseExited(event -> {
+            player.stop();
+        });
+
+        destroy.setOnMouseClicked(event -> {
+
+
+            User user = getLogged().getSdkUser();
+            Request r = new Request.Builder().url("https://ars.nwa2coco.fr/destroy_user").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(user))).build();
+            Request rs = new Request.Builder().url("https://auth.nwa2coco.fr/destroy_user").post(RequestBody.create(MediaType.parse("application/json"), new Gson().toJson(user))).build();
+            try {
+                ARSdk.HTTP_CLIENT.newCall(r).execute().body().string();
+                String s = ARSdk.HTTP_CLIENT.newCall(rs).execute().body().string();
+                System.out.println(s);
+                sendPopUp("Account Destroy", "Destroy Process", "Your account is successfully destroyed", Alert.AlertType.INFORMATION);
+                if (WebAPI.isBrowser()) {
+                    webPreferences.clearUser();
+                    initializeBaseLook();
+                    jProApplication.getWebAPI().executeScript("document.location.reload();");
+                } else {
+                    userLocalStoreDesktop.clearUser();
+                    initializeBaseLook();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        });
 
         Border b = new Border(new BorderStroke(Color.web("5B1414"), BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(2)));
 
@@ -494,6 +618,14 @@ public class HelloJProFXMLController implements Initializable {
         scc.setBorder(b);
         submit.setBorder(b);
         back.setBorder(b);
+        lock.setBorder(b);
+
+        destroy.setDisable(true);
+        lock.setOnMouseClicked(event -> {
+            destroy.setDisable(false);
+            lock.setDisable(true);
+            new ToggleDestroyTask().execute(lock, destroy, player);
+        });
 
 
         ChoiceBox vessel = new ChoiceBox();
@@ -511,6 +643,11 @@ public class HelloJProFXMLController implements Initializable {
         basepane.add(vessel, 4, 0);
         basepane.add(submit, 4, 3);
         basepane.add(back, 0, 3);
+        basepane.add(uuid, 1, 3);
+        basepane.add(linked, 2, 3);
+
+        basepane.add(lock, 0, 2);
+        basepane.add(destroy, 1, 2);
         submit.setPrefWidth(120);
 
         GridPane.setHalignment(submit, HPos.RIGHT);
@@ -651,13 +788,12 @@ public class HelloJProFXMLController implements Initializable {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(header);
-
         Label label = new Label(message);
         label.setWrapText(true);
         alert.getDialogPane().setContent(label);
 
         if (WebAPI.isBrowser()) {
-            jProApplication.getWebAPI().executeScript("alert('" + message + "') ");
+            jProApplication.getWebAPI().executeScript("alert('" + message.replace("\n", "\\n") + "') ");
         } else {
             alert.showAndWait();
         }

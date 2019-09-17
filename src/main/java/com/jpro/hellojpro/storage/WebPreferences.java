@@ -24,7 +24,6 @@ public class WebPreferences {
     }
 
     public void putString(String key, String value) {
-        System.out.println(value);
         webAPI.executeScript("createCookie('" + key + "','" + value.replace(" ", "[@_@]}").replace("\n", "}newline}") + "',31)");
     }
 
@@ -34,8 +33,6 @@ public class WebPreferences {
 
     public String getString(String key, String... def) {
         Map<String, String> m = webAPI.getCookies();
-        String s = m.getOrDefault(key, "");
-        System.out.println(s);
         return m.getOrDefault(key, "").replace("[@_@]}", " ").replace("}newline}", "\n");
     }
 
@@ -52,6 +49,8 @@ public class WebPreferences {
 
     public void clear() {
         webAPI.executeScript("clearCookies();");
+        System.out.println("ClearCalled" +
+                "");
     }
 
     public void remove(String key) {

@@ -6,6 +6,7 @@ import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
+import fr.colin.arssdk.ARSdk;
 
 import java.io.IOException;
 
@@ -55,11 +56,9 @@ public class AuthSDK {
         return new String[]{"true", lig};
     }
 
-    public static void main(String... args) {
-        TestO v = new TestO(false);
-        boolean test2 = true;
-        reS(v, test2);
-        System.out.println(v.value);
+    public static void main(String... args) throws IOException {
+        String s = ARSdk.HTTP_CLIENT.newCall(new Request.Builder().url("https://documentation.nwa2coco.fr/ars/version.php").get().build()).execute().body().string();
+        System.out.println(s);
     }
 
     public static void reS(TestO v, boolean d) {
